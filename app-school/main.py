@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Body, Path, Query
+from fastapi.responses import HTMLResponse, JSONResponse
 
 app = FastAPI()
 app.title = "API School"
@@ -6,7 +7,7 @@ app.version = "0.0.1"
 
 students = [
     {
-        "identificacion" : 1144108708,
+        "id" : 1144108708,
         "nombres":"Johan Leonardo",
         "apellidos": "Suarez Ospina",
         "email" : "leonardosp039@gmail.com",
@@ -29,7 +30,7 @@ students = [
 
 teachers = [
     {
-        "identificacion" : 123456789,
+        "id" : 123456789,
         "nombres" : "Andres Felipe",
         "apellidos" : "Blandon Mondragon",
         "email" : "leonardosp039@gmail.com",
@@ -37,7 +38,7 @@ teachers = [
         "telefono" : "3118467985"
     },
     {
-        "identificacion" : 321654987,
+        "id" : 321654987,
         "nombres" : "Julian",
         "apellidos" : "Ipia Capote",
         "email" : "JICapote@gmail.com",
@@ -46,13 +47,47 @@ teachers = [
     }
 ]
 
+credentials = [
+    {
+        "id" : 1144108708,
+        "user" : "jlsuarez",
+        "password":"0000"
+    },
+    {
+        "id" : 987654321,
+        "user" : "rqpadilla",
+        "password":"1111"
+    },
+    {
+        "id" : 123456789,
+        "user" : "afblandon",
+        "password":"2222"
+    },
+    {
+        "id" : 321654987,
+        "user" : "jicapote",
+        "password":"3333"
+    }
+]
 
 @app.get('/student', tags=['student'])
-def get_students(id:int):
+def get_students()->list:
+    return JSONResponse(status_code=200, content=students)
 
-    return id
+@app.get('/student/', tags=['student'])
+def get_students_by_id(id:int) -> dict:
+    for item in students:
+        if item["id"] == id:
+            return JSONResponse(status_code=200,content=item)
+    return JSONResponse(status_code=404,content="No se encontro informacion")
+
+@app.get('/teacher', tags=['teacher'])
+def get_teachers() -> dict:
+    return JSONResponse(status_code=200,content=teachers)
 
 @app.get('/teacher/{id}', tags=['teacher'])
-def get_teachers(id:int):
-
-    return id
+def get_teachers_by_id(id:int)->dict:
+    for item in teachers:
+        if item["id"] == id:
+            return JSONResponse(status_code=200,content=item)
+    return JSONResponse(status_code=404,content="No se encontro informacion")
