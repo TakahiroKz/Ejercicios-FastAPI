@@ -32,7 +32,7 @@ class Student(BaseModel):
     nombres : str = Field(max_length = 40)
     apellidos : str = Field(max_length = 40) 
     email : str = Field(max_length = 40) 
-    edad : int = Field(ge=1, le=2)
+    edad : int = Field(ge=1, le=100)
     grado: str = Field(min_length=1,max_length = 5)
     horario:str = Field(min_length=1,max_length=1)
     telefono : str = Field(min_length=9,max_length = 15)
@@ -122,12 +122,38 @@ credentials = [
 def get_students()->List[Student]:
     return JSONResponse(status_code=200, content=students)
 
-@app.get('/student/', tags=['student'])
+@app.get('/student/', tags=['student'],response_model=List[Student],status_code=200)
 def get_students_by_id(id:int) -> Student:
     for item in students:
         if item["id"] == id:
             return JSONResponse(status_code=200,content=item)
     return JSONResponse(status_code=404,content="No se encontro informacion")
+
+@app.post('/student', tags=['student'],response_model=dict,status_code=201)
+def create_student(student:Student)->dict:
+    students.append(dict(student))
+    return JSONResponse(status_code=201,content={"message":"Se agrego el estudiante de forma satisfactoria"})
+
+@app.put('/student',tags=['student'],response_model=dict,status_code=200)
+def update_student(id:int,student:Student)->dict:
+    for item in students:
+        if item["id"]==id:
+            item["id"] = student.id
+            item["nombres"] = student.nombres
+            item["apellidos"]= student.apellidos
+            item["email"] = student.email
+            item["edad"] = student.edad
+            item["grado"] = student.grado
+            item["horario"] = student.horario
+            item["telefono"] = student.telefono
+    return JSONResponse(status_code=200,content={"message":"Estudiante Modificado"})
+
+@app.delete('/student',tags=['student'],response_model=dict,status_code=200)
+def delete_student(id:int)->dict:
+    for item in students:
+        if item["id"] == id:
+            students.remove(item)
+    return JSONResponse(status_code=200,content={"message":"Estudiante eliminado"})
 
 @app.get('/teacher', tags=['teacher'],response_model=List[Teacher],status_code=200)
 def get_teachers()->List[Teacher]:
@@ -158,7 +184,7 @@ def update_teacher(id:int,teacher:Teacher)->dict:
     return JSONResponse(status_code=200,content={"message":"Se ha modificado el profesor"})
 
 @app.delete("/teacher/{id}",tags=['teacher'],response_model=dict,status_code=200)
-def delete_teacher(id:int,teacher:Teacher)->dict:
+def delete_teacher(id:int)->dict:
     for item in teachers:
         if item["id"] == id:
             teachers.remove(item)
