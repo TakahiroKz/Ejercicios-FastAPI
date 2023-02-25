@@ -2,6 +2,8 @@ from fastapi import FastAPI, Body, Path, Query
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
+from jwt_manager import create_token, validate_token
+
 
 app = FastAPI()
 app.title = "API School"
@@ -117,8 +119,9 @@ credentials = [
     }
 ]
 
+@app.post('')
 
-@app.get('/student', tags=['student'])
+@app.get('/student', tags=['student'],response_model=List[Student], status_code= 200) 
 def get_students()->List[Student]:
     return JSONResponse(status_code=200, content=students)
 
