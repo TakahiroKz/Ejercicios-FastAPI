@@ -1,13 +1,19 @@
-from fastapi import FastAPI, Body, Path, Query
+from fastapi import FastAPI, Body, Path, Query, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from jwt_manager import create_token, validate_token
+from fastapi.security import HTTPBearer
 
 
 app = FastAPI()
 app.title = "API School"
 app.version = "0.0.1"
+
+class User(BaseModel):
+    id : Optional[int] = None
+    user : str
+    password : str
 
 class Teacher(BaseModel):
     id: Optional[int] = None
@@ -53,6 +59,15 @@ class Student(BaseModel):
             }
 
         }
+
+class JWTBearer(HTTPBearer):
+    async def __call__(self, request: Request):
+        auth = await super().__call__(request)
+        data = validate_token(auth.credentials)
+        print(auth)
+        print(data)
+        if data['user'] != 'jlsuarez':
+            raise HTTPException(status_code=403,detail="Credenciales invalidas")
 
 students = [
     {
@@ -119,9 +134,15 @@ credentials = [
     }
 ]
 
-@app.post('')
+@app.post('/auth', tags=['login'], status_code=200)
+def login(user:User):
+    for item in credentials:
+        if item['user'] == user.user and item['password']== user.password:
+            token :str = create_token(user.dict())
+            return JSONResponse(status_code=200,content=token)
+    return JSONResponse(status_code=404,content="Usuario no encontrado")
 
-@app.get('/student', tags=['student'],response_model=List[Student], status_code= 200) 
+@app.get('/student', tags=['student'],response_model=List[Student], status_code= 200, dependencies=[Depends(JWTBearer())]) 
 def get_students()->List[Student]:
     return JSONResponse(status_code=200, content=students)
 
