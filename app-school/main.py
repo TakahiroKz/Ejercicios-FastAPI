@@ -66,7 +66,8 @@ class JWTBearer(HTTPBearer):
         data = validate_token(auth.credentials)
         print(auth)
         print(data)
-        if data['user'] != 'jlsuarez':
+        res = validate_user(data)
+        if res == False:
             raise HTTPException(status_code=403,detail="Credenciales invalidas")
 
 students = [
@@ -134,10 +135,19 @@ credentials = [
     }
 ]
 
+def validate_user(data):
+    for item in credentials:
+        if item['user'] == data['user']:
+            res = True
+            break
+        else:
+            res = False
+    return res
+
 @app.post('/auth', tags=['login'], status_code=200)
 def login(user:User):
     for item in credentials:
-        if item['user'] == user.user and item['password']== user.password:
+        if item['user'] == user.user and item['password'] == user.password:
             token :str = create_token(user.dict())
             return JSONResponse(status_code=200,content=token)
     return JSONResponse(status_code=404,content="Usuario no encontrado")
