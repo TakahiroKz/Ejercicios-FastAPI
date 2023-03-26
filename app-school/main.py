@@ -102,7 +102,7 @@ credentials = [
     },
     {
         "id" : 987654321,
-        "user" : "rqpadilla",
+        "user" : "Raquel Padilla",
         "password":"1111"
     },
     {
