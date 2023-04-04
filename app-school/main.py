@@ -7,6 +7,7 @@ from sqlmodel import SQLModel
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from routers.user import user_routing
+from routers.login import login_router
 
 app = FastAPI()
 app.title = 'School'
@@ -14,6 +15,7 @@ app.version = '0.0.1'
 
 app.add_middleware(ErrorHandler)
 app.include_router(user_routing)
+app.include_router(login_router)
 
 SQLModel.metadata.create_all(engine)
 

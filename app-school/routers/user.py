@@ -12,7 +12,7 @@ from fastapi.responses import JSONResponse
 
 user_routing = APIRouter()
 
-@user_routing.get("/user",tags=['1.user'],response_model=List[UserSchema])
+@user_routing.get("/user",tags=['1.user'],response_model=List[UserSchema], dependencies=[Depends(JWTBearer())]) 
 def get_users():
     db = session
     result = UserService(db).get_users()
@@ -20,7 +20,7 @@ def get_users():
         JSONResponse(status_code=200, content={'message':'No se encontraro usuarios'})
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
-@user_routing.get('/user/{id}',tags=['1.user'])
+@user_routing.get('/user/{id}',tags=['1.user'], dependencies=[Depends(JWTBearer())])
 def get_user(id:int):
     db = session
     result = UserService(db).get_user(id)
@@ -28,7 +28,7 @@ def get_user(id:int):
         return JSONResponse(status_code=404,content={'message':'Usuario no encontrado'})
     return JSONResponse(status_code=200,content=jsonable_encoder(result))
 
-@user_routing.get('/user/',tags=['1.user'])
+@user_routing.get('/user/',tags=['1.user'], dependencies=[Depends(JWTBearer())])
 def get_user_by_name(name:str):
     db = session    
     result = UserService(db).get_user_by_name(name)
@@ -36,7 +36,7 @@ def get_user_by_name(name:str):
         return JSONResponse(status_code=404, content={'message':'Usuario no encontrado'})
     return JSONResponse(status_code=200, content=jsonable_encoder(result))
 
-@user_routing.post('/user',tags=['1.user'],response_model=dict)
+@user_routing.post('/user',tags=['1.user'],response_model=dict, dependencies=[Depends(JWTBearer())])
 def create_user(user:UserSchema):
     db = session
     id = user.id
@@ -46,7 +46,7 @@ def create_user(user:UserSchema):
     UserService(db).create_user(user)
     return JSONResponse(status_code=201,content="Usuario Creado")
 
-@user_routing.put('/user/{id}', tags=['1.user'])
+@user_routing.put('/user/{id}', tags=['1.user'], dependencies=[Depends(JWTBearer())])
 def update_user(id:int, data:UserSchema):
     db = session
     user = UserService(db).get_user(id)
@@ -55,7 +55,7 @@ def update_user(id:int, data:UserSchema):
     UserService(db).update_user(id,data)
     return JSONResponse(status_code=200,content={'message:':'Se ha modificado el usuario'})
 
-@user_routing.delete('/user',tags=['1.user'])
+@user_routing.delete('/user',tags=['1.user'], dependencies=[Depends(JWTBearer())])
 def delete_user(id:int):
     db = session
     result = UserService(db).get_user(id)

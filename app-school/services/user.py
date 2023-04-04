@@ -20,6 +20,31 @@ class UserService():
         statement = f"Select * from apolo.user where nombre1 like'%{name.capitalize()}%' or nombre2 like'%{name.capitalize()}%'"
         result = self.db.execute(statement).all()
         return result
+    
+    def get_user_by_email(self,email:str):
+        statement = f"Select correo from apolo.user where correo = '{email}'"
+        result = self.db.execute(statement).first()
+        return result
+    
+    def check_user(self,email:str,password:str):
+        statement = f"Select correo, password from apolo.user where correo = '{email}'"
+        result = self.db.execute(statement).first()
+        if result[0] == email and result[1] == password:
+            res = True
+        else:
+            res = False
+        return res
+    
+    def get_rol(self, email:str):
+        statement = f"Select rol from apolo.user where correo = '{email}'"
+        result = self.db.execute(statement).first()
+        return result
+    
+    def validate_rol(self, rol):
+
+        statement =f"select id from apolo.rol r,apolo.user u where u.rol = {rol} and u.rol = r.id"
+        result = self.db.execute(statement).first()
+        return result
 
     def create_user(self,user:UserSchema):
         newUser = UserModel(**user.dict())
